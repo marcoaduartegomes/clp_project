@@ -1,0 +1,5 @@
+"Rule: ocaml: cmx* & o* -> native (%=project )": "U1\141!|\213\030\198\205nv\255.\203J\215"
+"Rule: ocaml: ml -> cmo & cmi (%=project )": "\0220\024eE&\207\214\029\156(\184\130\213\015\169"
+"Rule: ocaml dependencies ml (%=project )": "\235\132\027\232\019JlW\204K\231\133\139\201\135\133"
+"Rule: ocaml: ml & cmi -> cmx & o (%=project )": "\bBZ\216@\019\132\132D\239\196\166\240\238.a"
+"Resource: /root/eclipse-workspace/clp_project/project.ml": "\n\205\129\143\149o\208\138\1785q;\174\207kP"
