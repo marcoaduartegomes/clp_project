@@ -1,46 +1,118 @@
-(*DECLARAÇÃO DAS FUNÇÕES*)
+(* Projeto da MatÃ©ria - Conceitos de Linguagem de ProgramaÃ§Ã£o(CLP) *)
 
-(* VERIFICA SE É LETRA MINÚSCULA *)
-let e_variavel_min c = ((int_of_char(c) >= int_of_char('a')) && (int_of_char(c) <= int_of_char('z')));;
+(* DeclaraÃ§Ã£o das Listas *)
+let listaLogico = ['!';'&';'@'];;
+let listaAritmetico = ['+';'-';'*';'/';'%';'^'];;
+let resposta_verifica = ref '0';;
+let resposta_indice = ref 0;;
 
-(* VERIFICA SE É LETRA MAIÚSCULA *)
-let e_variavel_max c = ((int_of_char(c) >= int_of_char('A')) && (int_of_char(c) <= int_of_char('Z')));;
+(* FunÃ§Ã£o que transforma string em lista tendo cada um dos caracteres *)
+let explode s =
+	let rec exp i l =
+		if i<0 then l else exp (i - 1) (s.[i] :: l) in
+	exp (String.length s -1) []
 
-(* VERIFICA SE É DÍGITO *)
-let e_digito c = let zero = int_of_char('0') in 
-	int_of_char(c) - zero >= 0 && int_of_char(c) - zero <= 9;;
+(* FunÃ§Ã£o que verifica se a string contem um termo de uma lista *)
+let verifica = fun s lista resposta ->
+  let lista_string = explode s in
+  let tamanho_lista_string = List.length lista_string in
+  let tamanho_lista = List.length lista in
+  let char = ref '0' in
+  let existe = ref '0' in
+	try
+  for i = 0 to tamanho_lista_string - 1 do
+	  for j = 0 to tamanho_lista - 1 do
+	    char := List.nth lista_string i;
+	    existe := List.nth lista j;
+	    resposta := if char = existe
+			then 's'
+			else 'n';
+			if !resposta = 's' then raise Exit;
+	  done
+  done;
+	false
+	with Exit -> true;;
 
-(*=================================================================================================================================*)			
+(* FunÃ§Ã£o que retorna o indice na lista da string do primeiro termo comum*)
+(*  entre a string e a lista*)
+let pega_indice = fun s lista resposta ->
+  let lista_string = explode s in
+  let tamanho_lista_string = List.length lista_string in
+  let tamanho_lista = List.length lista in
+  let char = ref '0' in
+  let existe = ref '0' in
+	try
+  for i = 0 to tamanho_lista_string - 1 do
+	  for j = 0 to tamanho_lista - 1 do
+	    char := List.nth lista_string i;
+	    existe := List.nth lista j;
+	    resposta := if char = existe
+			then i
+			else -1;
+			if !resposta = i then raise Exit;
+	  done
+  done;
+	false
+	with Exit -> true;;
 
-(*variável para teste apenas*)		
-let expr = "X1y564";;
+(* FunÃ§Ã£o que separa a string em uma lista contendo os 'tokens' *)
 
-(*A LÓGICA USADA FOI QUE SE A VARIÁVEL CONTROLE FOR IGUAL A STRING ENTÃO ELA PERCORREU TODA A STRING OBEDECENDO AS REGRAS, LOGO*)
-(*ELA É UMA VARIÁVEL, CASO CONTRÁRIO NÃO *)
+let rec separa_exp = fun s lista ->
+  let resposta = ref '0' in
+	let teste = ref true in
+	  teste := verifica s listaLogico resposta;
+		if !resposta = 's' then
+   	  let teste2 = ref true in
+	    let resposta_indice = ref 0 in
+      teste2 := pega_indice s listaLogico resposta_indice;
+		  let char = ref '0' in
+		  let lista_s = explode s in
+		  let tamanho = List.length lista_s in
+		  char := List.nth lista_s !resposta_indice;
+		  lista := List.append [!char] !lista;
+      if (tamanho == 1) then
+			  lista else
+			  separa_exp (String.sub s (!resposta_indice+1) (tamanho - !resposta_indice - 1)) lista;
+    else lista;;
 
-(* esse valor tem que ser SEMPRE true para a lógica funcionar *)
-let retorno_const = true;; 
+(* FunÃ§Ã£o que verifica se Ã© inteiro *)
+let verifica_int = fun s resposta ->
+  resposta := Str.string_match (Str.regexp "0$\|-?[1-9]$\|-?[1-9][0-9]+$") s 0;;
 
-(*verifica se é uma variável ou não*)
-let rec ehVariavel exp pos controle retorno = 
-	(*POS INDICA A POSIÇÃO ATUAL, EXP É UMA STRING*)
-	if (pos = (String.length exp)) then 
-		if (controle = (String.length exp)) then 
-			true
-		else 
-			false
-	else 
-		(*VERIFICA SE O PRIMEIRO CHAR É MINUSCULO*)
-		if ((e_variavel_min (String.get exp pos)) && (pos = 0)) then
-			retorno = ehVariavel exp (pos+1) (controle+1) retorno
-	  else 
-			if ((e_variavel_max (String.get exp pos) || e_variavel_min (String.get exp pos) || e_digito (String.get exp pos)) && (pos <> 0)) then
-				retorno = ehVariavel exp (pos+1) (controle+1) retorno
-			else
-				retorno = ehVariavel exp (pos+1) (controle) retorno;;
+(* FunÃ§Ã£o que verifica se Ã© natural *)
+let verifica_nat = fun s resposta ->
+  resposta := Str.string_match (Str.regexp "[1-9]$\|[1-9][0-9]+$") s 0;;
 
-(* converte o boolean para string *)
-print_string( string_of_bool(ehVariavel expr 0 0 retorno_const) );;
-				 	
+(* FunÃ§Ã£o que verifica se Ã© racional *)
+let verifica_rac = fun s resposta ->
+	let regexp_div = Str.regexp "[:]" in
+  let ind_div = Str.search_forward regexp_div s 0 in
+	let int_part = Str.string_before s ind_div in
+	let nat_part = Str.string_after s (ind_div+1) in
+	let resposta1 = ref true in
+	let resposta2 = ref true in
+	verifica_int int_part resposta1;
+	verifica_nat nat_part resposta2;
+	resposta :=
+		if !resposta1 && !resposta2 then
+		  true
+		else
+			false;;
 
-(*======================================================== FIM =========================================================================*)			
+(* FunÃ§Ã£o que verifica se hÃ¡ operador de comparaÃ§Ã£o na string *)
+let verifica_comparativo = fun input ->
+  let exp = Str.regexp ".+>.+$\|.+<.+$\|.+=.+$" in
+  let resultado = Str.string_match exp input 0 in
+  if resultado then true else false;; 
+
+(* ========================================================================  *)
+(* MAIN *)
+
+let expressao = "50:10";;
+let lista = ref [];;
+let teste = ref true;;
+let resposta = separa_exp expressao lista;;
+(* Printf.printf "%c" (List.nth !lista 1);; *)
+let resposta2 = verifica_rac expressao teste;;
+Printf.printf "%b" !teste;;
+
