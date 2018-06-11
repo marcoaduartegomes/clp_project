@@ -104,6 +104,45 @@ let verifica_comparativo = fun input ->
   let exp = Str.regexp ".+>.+$\|.+<.+$\|.+=.+$" in
   let resultado = Str.string_match exp input 0 in
   if resultado then true else false;; 
+  
+(* Função que verifica se a quantidade e ordem dos parenteses esta correta *)  
+let verifica_parenteses = fun s resposta->
+	let tamanho_string = String.length s in
+	let num_parenteses1 = ref 0 in
+	let num_parenteses2 = ref 0 in
+	let num_parenteses3 = ref 0 in
+	let final = ref tamanho_string in
+	let acha_par = ref 0 in
+	let rodada_1 = ref true in
+	for i = 0 to (tamanho_string-1) do
+		if (String.get s i) == '(' then
+			begin
+		  num_parenteses1 := !num_parenteses1 + 1;
+			acha_par := 1;
+			for j = (i+1) to (!final-1) do
+				if (String.get s j) == '(' then
+			    acha_par := !acha_par + 1;					
+				if (String.get s j) == ')' then
+			    acha_par := !acha_par - 1;
+				if !acha_par == 0 && !rodada_1 then	
+					begin
+					num_parenteses2 := !num_parenteses2 + 1;
+					rodada_1 := false;
+					end;
+			done;
+			rodada_1 := true;
+			end;
+		if (String.get s i) == ')' then
+			num_parenteses3 := !num_parenteses3 + 1;	
+	done;
+	if !num_parenteses1 != 0 || !num_parenteses3 != 0 then		
+	  if !num_parenteses1 == !num_parenteses2
+		&& (!num_parenteses3 + !num_parenteses1) == (!num_parenteses1*2) then
+		  resposta := true
+	  else
+		  resposta := false
+  else
+		resposta := false;;
 
 (* ========================================================================  *)
 (* MAIN *)
